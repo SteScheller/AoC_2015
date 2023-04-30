@@ -1,8 +1,4 @@
-use std::fs;
-
-fn read_input(file_path: &str) -> String {
-    fs::read_to_string(file_path).unwrap()
-}
+use common;
 
 fn part_one(input: &str) -> u32 {
     let mut result = 0;
@@ -42,7 +38,7 @@ fn part_two(input: &str) -> u32 {
 }
 
 fn main() {
-    let input = read_input("input.txt");
+    let input = common::read_input("input.txt");
     println!("{}", part_one(&input));
     println!("{}", part_two(&input));
 }
