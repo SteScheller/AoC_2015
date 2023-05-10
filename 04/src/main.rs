@@ -1,20 +1,24 @@
 use common;
 use md5;
 
-fn part_one(input: &str) -> u32 {
+fn find_prefix_collision(input: &str, prefix: &str) -> u32 {
     let mut result = 0;
     let mut condition = true;
 
     while condition {
         result += 1;
         let md5_hash = md5::compute(String::from(input)+ &result.to_string());
-        condition = !format!("{:x}", md5_hash).starts_with("00000");
+        condition = !format!("{:x}", md5_hash).starts_with(prefix);
     }
     result
 }
 
+fn part_one(input: &str) -> u32 {
+    find_prefix_collision(input, "00000")
+}
+
 fn part_two(input: &str) -> u32 {
-    0
+    find_prefix_collision(input, "000000")
 }
 
 fn main() {
@@ -31,10 +35,5 @@ mod tests {
     fn test_part_one() {
         assert_eq!(part_one("abcdef"), 609043);
         assert_eq!(part_one("pqrstuv"), 1048970);
-    }
-
-    #[test]
-    fn test_part_two() {
-        assert_eq!(part_two("abcdef"), 0);
     }
 }
