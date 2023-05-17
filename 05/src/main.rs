@@ -1,30 +1,44 @@
 use common;
-use regex::Regex;
+use fancy_regex::Regex;
 
 fn part_one(input: &str) -> u32 {
     let mut result = 0;
 
     let re_three_vowels = Regex::new(r"[aeiou].*[aeiou].*[aeiou]").unwrap();
-    let re_double_letter = Regex::new(r"(?P<l>\w)${l}+").unwrap();
-    let re_not_contain = Regex::new(r"(ab|cd|pq|xy)").unwrap();
+    let re_double_letter = Regex::new(r"(\w)\1+").unwrap();
+    let re_naughty_sequences = Regex::new(r"(ab|cd|pq|xy)").unwrap();
 
     for item in input.lines() {
-        if let None = re_three_vowels.captures(item) {
+        if !re_three_vowels.is_match(item).unwrap() {
             continue;
-        };
-        if let None = re_double_letter.captures(item) {
+        }
+        if !re_double_letter.is_match(item).unwrap() {
             continue;
-        };
-        if let Some(_) = re_not_contain.captures(item) {
+        }
+        if re_naughty_sequences.is_match(item).unwrap() {
             continue;
-        };
+        }
         result += 1;
     }
     result
 }
 
 fn part_two(input: &str) -> u32 {
-    0
+    let mut result = 0;
+
+    let re_double_pair = Regex::new(r"(\w\w).*\1").unwrap();
+    let re_repeated_letter = Regex::new(r"(\w).\1").unwrap();
+
+    for item in input.lines() {
+        if !re_double_pair.is_match(item).unwrap() {
+            continue;
+        }
+        if !re_repeated_letter.is_match(item).unwrap() {
+            continue;
+        }
+        result += 1;
+    }
+    result
 }
 
 fn main() {
@@ -48,6 +62,9 @@ mod tests {
 
     #[test]
     fn test_part_two() {
-        assert_eq!(part_two(""), 0);
+        assert_eq!(part_two("qjhvhtzxzqqjkmpb"), 1);
+        assert_eq!(part_two("xxyxx"), 1);
+        assert_eq!(part_two("uurcxstgmygtbstg"), 0);
+        assert_eq!(part_two("ieodomkazucvgmuy"), 0);
     }
 }
