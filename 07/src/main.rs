@@ -2,13 +2,33 @@ use common;
 use regex::{Captures, Regex};
 use std::collections::HashMap;
 
-enum Instruction {}
+enum Argument {
+    Signal(String),
+    Constant(u16),
+}
+
+enum Operation {
+    Assignment,
+    Not,
+    LeftShift(u8),
+    RightShift(u8),
+    And,
+    Or,
+}
+
+struct Instruction{
+    op: Operation,
+    arg1: Argument,
+    arg2: Option<Argument>,
+    out: Argument::Signal,
+}
 
 fn get_instructions(input: &str) -> Option<Vec<Instruction>> {
     let mut instructions = Vec::new();
-    let re_turn_on = Regex::new(r"turn on ((\d+),(\d+)) through ((\d+),(\d+))").unwrap();
-    let re_turn_off = Regex::new(r"turn off ((\d+),(\d+)) through ((\d+),(\d+))").unwrap();
-    let re_toggle = Regex::new(r"toggle ((\d+),(\d+)) through ((\d+),(\d+))").unwrap();
+    let re_assignment = Regex::new(r"^(\w+) -> (\w+)").unwrap();
+    let re_not = Regex::new(r"^(NOT (\w+)) -> (\w+)").unwrap();
+    let re_shift = Regex::new(r"(\w+) (LSHIFT|RSHIFT) (\d+) -> (\w+)").unwrap();
+    let re_other = Regex::new(r"(\w+) (AND|OR) (\w+) -> (\w+)").unwrap();
 
     let captures_to_points = |c: Captures| {
         (
@@ -22,16 +42,12 @@ fn get_instructions(input: &str) -> Option<Vec<Instruction>> {
             ),
         )
     };
+
     for line in input.lines() {
-        if let Some(c) = re_turn_on.captures(line) {
-            instructions.push(Instruction::new(Instruction::TurnOn, captures_to_points(c)));
-        } else if let Some(c) = re_turn_off.captures(line) {
-            instructions.push(Instruction::new(
-                Instruction::TurnOff,
-                captures_to_points(c),
-            ));
-        } else if let Some(c) = re_toggle.captures(line) {
-            instructions.push(Instruction::new(Instruction::Toggle, captures_to_points(c)));
+        if let Some(c) = re_assignment.captures(line) {
+        } else if let Some(c) = re_not.captures(line) {
+        } else if let Some(c) = re_shift.captures(line) {
+        } else if let Some(c) = re_other.captures(line) {
         }
     }
 
