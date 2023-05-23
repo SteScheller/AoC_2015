@@ -2,9 +2,29 @@ use common;
 use regex::{Captures, Regex};
 use std::collections::HashMap;
 
+struct Wire {
+    name: String,
+    signal: u16,
+}
+struct Constant(u16);
+
 enum Argument {
-    Signal(String),
-    Constant(u16),
+    WireVariant(Wire),
+    ConstantVariant(Constant),
+}
+
+impl Argument {
+    pub fn from_str(s: &str) -> Self {
+        let value = s.parse::<u16>();
+        if let Ok(value) = value {
+            Argument::ConstantVariant(Constant(value))
+        } else {
+            Argument::WireVariant(Wire {
+                name: s.to_string(),
+                signal: 0,
+            })
+        }
+    }
 }
 
 enum Operation {
@@ -16,11 +36,11 @@ enum Operation {
     Or,
 }
 
-struct Instruction{
+struct Instruction {
     op: Operation,
     arg1: Argument,
     arg2: Option<Argument>,
-    out: Argument::Signal,
+    out: Wire,
 }
 
 fn get_instructions(input: &str) -> Option<Vec<Instruction>> {
@@ -44,10 +64,15 @@ fn get_instructions(input: &str) -> Option<Vec<Instruction>> {
     };
 
     for line in input.lines() {
+        let mut inst = Option::<Instruction>::None;
         if let Some(c) = re_assignment.captures(line) {
         } else if let Some(c) = re_not.captures(line) {
         } else if let Some(c) = re_shift.captures(line) {
         } else if let Some(c) = re_other.captures(line) {
+        }
+
+        if let Some(inst) = inst {
+            instructions.push(inst);
         }
     }
 
@@ -57,18 +82,20 @@ fn get_instructions(input: &str) -> Option<Vec<Instruction>> {
     }
 }
 
-fn part_one(input: &str) -> HashMap<&str,i32> {
-    let instructions = get_instructions(input).unwrap();
+fn part_one(input: &str) -> HashMap<&str, u16> {
+    //let instructions = get_instructions(input).unwrap();
+    HashMap::new()
 }
 
-fn part_two(input: &str) -> HashMap<&str,i32> {
-    let instructions = get_instructions(input).unwrap();
+fn part_two(input: &str) -> HashMap<&str, u16> {
+    //let instructions = get_instructions(input).unwrap();
+    HashMap::new()
 }
 
 fn main() {
     let input = common::read_input("input.txt");
-    println!("{}", part_one(&input));
-    println!("{}", part_two(&input));
+    println!("{}", part_one(&input).get("a").unwrap_or(&0));
+    println!("{}", part_two(&input).get("a").unwrap_or(&0));
 }
 
 #[cfg(test)]
@@ -77,35 +104,34 @@ mod tests {
 
     #[test]
     fn test_part_one() {
-                    let expected_map=HashMap::from([
-        ("d", 72),
-        ("e", 507),
-        ("f", 492),
-        ("g", 114),
-        ("h", 65412),
-        ("i", 65079),
-        ("x", 123),
-        ("y", 456),
-                    ]);
-                    let computed_map = part_one(
-                        "123 -> x
+        let expected_map = HashMap::from([
+            ("d", 72),
+            ("e", 507),
+            ("f", 492),
+            ("g", 114),
+            ("h", 65412),
+            ("i", 65079),
+            ("x", 123),
+            ("y", 456),
+        ]);
+        let computed_map = part_one(
+            "123 -> x
 456 -> y
 x AND y -> d
 x OR y -> e
 x LSHIFT 2 -> f
 y RSHIFT 2 -> g
 NOT x -> h
-NOT y -> i"
-                    );
+NOT y -> i",
+        );
 
-                    for (k, v) in &computed_map {
-                        assert_eq!(v, expected_map.entry(k));
-                    }
-        };
+        for (k, v) in &expected_map {
+            assert_eq!(v, computed_map.get(k).unwrap_or(&(v + 1)));
+        }
     }
 
     #[test]
     fn test_part_two() {
-        assert_eq!(part_two(""), 1);
+        assert!(false);
     }
 }
