@@ -36,6 +36,14 @@ enum Operation {
     Or,
 }
 
+/*
+impl Operation {
+    pub fn new<T>(constructor: T, argument: U) -> Self
+    where
+        T: Fn
+}
+*/
+
 struct Instruction {
     op: Operation,
     arg1: Argument,
@@ -50,23 +58,33 @@ fn get_instructions(input: &str) -> Option<Vec<Instruction>> {
     let re_shift = Regex::new(r"(\w+) (LSHIFT|RSHIFT) (\d+) -> (\w+)").unwrap();
     let re_other = Regex::new(r"(\w+) (AND|OR) (\w+) -> (\w+)").unwrap();
 
-    let captures_to_points = |c: Captures| {
-        (
-            (
-                c.get(2).unwrap().as_str().parse::<usize>().unwrap(),
-                c.get(3).unwrap().as_str().parse::<usize>().unwrap(),
-            ),
-            (
-                c.get(5).unwrap().as_str().parse::<usize>().unwrap(),
-                c.get(6).unwrap().as_str().parse::<usize>().unwrap(),
-            ),
-        )
+    let capture_to_arg = |c: &Captures, i: usize| {
+        Argument::from_str(c.get(i).unwrap().as_str())
     };
-
+    let capture_to_wire = |c: &Captures, i: usize| {
+        if let Argument::WireVariant(w) = capture_to_arg(c, i) {
+            Some(w)
+        }
+        else {
+            None
+        }
+    };
     for line in input.lines() {
         let mut inst = Option::<Instruction>::None;
         if let Some(c) = re_assignment.captures(line) {
+            inst = Some(Instruction{
+                op: Operation::Assignment,
+                arg1: capture_to_arg(&c, 1),
+                arg2: None,
+                out: capture_to_wire(&c, 2).unwrap(),
+            })
         } else if let Some(c) = re_not.captures(line) {
+            inst = Some(Instruction{
+                op: Operation::Not,
+                arg1: capture_to_arg(&c, 2),
+                arg2: None,
+                out: capture_to_wire(&c, 3).unwrap(),
+            })
         } else if let Some(c) = re_shift.captures(line) {
         } else if let Some(c) = re_other.captures(line) {
         }
@@ -83,12 +101,12 @@ fn get_instructions(input: &str) -> Option<Vec<Instruction>> {
 }
 
 fn part_one(input: &str) -> HashMap<&str, u16> {
-    //let instructions = get_instructions(input).unwrap();
+    let instructions = get_instructions(input).unwrap();
     HashMap::new()
 }
 
 fn part_two(input: &str) -> HashMap<&str, u16> {
-    //let instructions = get_instructions(input).unwrap();
+    let instructions = get_instructions(input).unwrap();
     HashMap::new()
 }
 
