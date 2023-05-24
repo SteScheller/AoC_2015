@@ -1,11 +1,12 @@
 use common;
 use regex::{Captures, Regex};
-use std::collections::HashMap;
+use std::{fmt, collections::HashMap};
 
 struct Wire {
     name: String,
     signal: u16,
 }
+
 struct Constant(u16);
 
 enum Argument {
@@ -27,6 +28,7 @@ impl Argument {
     }
 }
 
+#[derive(Debug)]
 enum Operation {
     Assignment,
     Not,
@@ -36,19 +38,40 @@ enum Operation {
     Or,
 }
 
-/*
-impl Operation {
-    pub fn new<T>(constructor: T, argument: U) -> Self
-    where
-        T: Fn
-}
-*/
-
 struct Instruction {
     op: Operation,
     arg1: Argument,
     arg2: Option<Argument>,
     out: Wire,
+}
+
+impl fmt::Debug for Instruction {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let op = match &self.op {
+            Operation::Assignment => "".to_string(),
+            Operation::And => " && ".to_string(),
+            Operation::Or => " || ".to_string(),
+            Operation::LeftShift(i) => format!(" << {i}"),
+            Operation::RightShift(i) => format!(" >> {i}"),
+            Operation::Not => "_not".to_string(),
+        };
+        let arg1 = match &self.arg1 {
+            Argument::ConstantVariant(c) => c.0.to_string(),
+            Argument::WireVariant(w) => w.name.clone(),
+
+        };
+        let arg2 = match &self.arg2 {
+            None => "".to_string(),
+            Some(arg) => {
+                match arg {
+                    Argument::ConstantVariant(c) => c.0.to_string(),
+                    Argument::WireVariant(w) => w.name.clone(),
+                }
+            }
+
+        };
+        write!(f, "{} = {arg1}{op}{arg2};", self.out.name)
+    }
 }
 
 fn get_instructions(input: &str) -> Option<Vec<Instruction>> {
@@ -86,7 +109,29 @@ fn get_instructions(input: &str) -> Option<Vec<Instruction>> {
                 out: capture_to_wire(&c, 3).unwrap(),
             })
         } else if let Some(c) = re_shift.captures(line) {
+            let op = match c.get(2).unwrap().as_str() {
+                "LSHIFT" => Operation::LeftShift(c.get(3).unwrap().as_str().parse::<u8>().unwrap()),
+                "RSHIFT" => Operation::RightShift(c.get(3).unwrap().as_str().parse::<u8>().unwrap()),
+                _ => panic!("failed to parse shift instruction"),
+            };
+            inst = Some(Instruction{
+                op: op,
+                arg1: capture_to_arg(&c, 1),
+                arg2: None,
+                out: capture_to_wire(&c, 4).unwrap(),
+            })
         } else if let Some(c) = re_other.captures(line) {
+            let op = match c.get(2).unwrap().as_str() {
+                "AND" => Operation::And,
+                "OR" => Operation::Or,
+                _ => panic!("failed to parse instruction"),
+            };
+            inst = Some(Instruction{
+                op: op,
+                arg1: capture_to_arg(&c, 1),
+                arg2: Some(capture_to_arg(&c, 3)),
+                out: capture_to_wire(&c, 4).unwrap(),
+            })
         }
 
         if let Some(inst) = inst {
@@ -102,11 +147,14 @@ fn get_instructions(input: &str) -> Option<Vec<Instruction>> {
 
 fn part_one(input: &str) -> HashMap<&str, u16> {
     let instructions = get_instructions(input).unwrap();
+    for item in instructions {
+        println!("{:?}", item);
+    }
     HashMap::new()
 }
 
 fn part_two(input: &str) -> HashMap<&str, u16> {
-    let instructions = get_instructions(input).unwrap();
+    //let instructions = get_instructions(input).unwrap();
     HashMap::new()
 }
 
