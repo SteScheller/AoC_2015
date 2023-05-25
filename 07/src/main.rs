@@ -1,6 +1,6 @@
 use common;
 use regex::{Captures, Regex};
-use std::{collections::HashMap, fmt};
+use std::collections::HashMap;
 
 struct Wire(String);
 
@@ -80,31 +80,6 @@ struct Instruction {
     out: Wire,
 }
 
-impl fmt::Debug for Instruction {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let op = match &self.op {
-            Operation::Assignment => "".to_string(),
-            Operation::And => " && ".to_string(),
-            Operation::Or => " || ".to_string(),
-            Operation::LeftShift(i) => format!(" << {i}"),
-            Operation::RightShift(i) => format!(" >> {i}"),
-            Operation::Not => "_not".to_string(),
-        };
-        let arg1 = match &self.arg1 {
-            Argument::ConstantVariant(c) => c.0.to_string(),
-            Argument::WireVariant(w) => w.0.clone(),
-        };
-        let arg2 = match &self.arg2 {
-            None => "".to_string(),
-            Some(arg) => match arg {
-                Argument::ConstantVariant(c) => c.0.to_string(),
-                Argument::WireVariant(w) => w.0.clone(),
-            },
-        };
-        write!(f, "{} = {arg1}{op}{arg2};", self.out.0)
-    }
-}
-
 fn get_instructions(input: &str) -> Option<Vec<Instruction>> {
     let mut instructions = Vec::new();
     let re_assignment = Regex::new(r"^(\w+) -> (\w+)").unwrap();
@@ -175,53 +150,67 @@ fn get_instructions(input: &str) -> Option<Vec<Instruction>> {
     }
 }
 
-fn part_one(input: &str) -> HashMap<String, u16> {
-    let instructions = get_instructions(input).unwrap();
+fn solve(instructions: &Vec<Instruction>) -> HashMap<String, u16> {
     let mut results: HashMap<String, u16> = HashMap::new();
-    while results.len() < instructions.len() {
-        for inst in &instructions {
+
+    'outer: for _ in 0..instructions.len() {
+        for inst in instructions {
+            if results.len() == instructions.len() {
+                break 'outer;
+            }
+
             if !results.contains_key(&inst.out.0) {
-                let arg1 = results.contains_key(k)
-                let (mut arg1, mut arg2) = (0, 0);
-                match inst.arg1 {
-                    Argument::ConstantVariant(c) => {
-                        arg1 = c.0;
-                    }
-                    Argument::WireVariant(w) => {
-                        if results.contains_key(&w.0) {
-                            arg1 = results.get(&w.0).unwrap().clone();
-                        } else {
-                            continue;
-                        }
+                let mut arg1 = &inst.arg1;
+                let temp_constant;
+                if let &Argument::WireVariant(w) = &arg1 {
+                    if results.contains_key(&w.0) {
+                        temp_constant =
+                            Argument::ConstantVariant(Constant(results.get(&w.0).unwrap().clone()));
+                        arg1 = &temp_constant;
                     }
                 };
-                match inst.arg2 {
-                    None => {}
-                    Some(arg) => match arg {
-                        Argument::ConstantVariant(c) => {
-                            arg2 = c.0;
-                        }
-                        Argument::WireVariant(w) => {
-                            if results.contains_key(&w.0) {
-                                arg2 = results.get(&w.0).unwrap().clone();
-                            } else {
-                                continue;
-                            }
-                        }
-                    },
-                };
+                let mut arg2 = &inst.arg2;
+                let temp_option;
+                if let &Some(Argument::WireVariant(w)) = &arg2 {
+                    if results.contains_key(&w.0) {
+                        temp_option = Some(Argument::ConstantVariant(Constant(
+                            results.get(&w.0).unwrap().clone(),
+                        )));
+                        arg2 = &temp_option;
+                    }
+                }
                 if let Some(value) = inst.op.compute(arg1, arg2) {
                     results.insert(inst.out.0.clone(), value);
                 }
-            }
+            };
         }
     }
     results
 }
 
-fn part_two(_input: &str) -> HashMap<String, u16> {
-    //let instructions = get_instructions(input).unwrap();
-    HashMap::new()
+fn part_one(input: &str) -> HashMap<String, u16> {
+    let instructions = get_instructions(input).unwrap();
+    solve(&instructions)
+}
+
+fn part_two(input: &str) -> HashMap<String, u16> {
+    let signal_a = part_one(input).get("a").unwrap().clone();
+    let mut instructions = get_instructions(input).unwrap();
+    let modified_b = Instruction {
+        op: Operation::Assignment,
+        arg1: Argument::ConstantVariant(Constant(signal_a)),
+        arg2: None,
+        out: Wire("b".to_string()),
+    };
+
+    for inst in instructions.iter_mut() {
+        if inst.out.0 == "b" {
+            *inst = modified_b;
+            break;
+        }
+    }
+
+    solve(&instructions)
 }
 
 fn main() {
@@ -260,10 +249,5 @@ NOT y -> i",
         for (k, v) in &expected_map {
             assert_eq!(v, computed_map.get(k).unwrap_or(&(v + 1)));
         }
-    }
-
-    #[test]
-    fn test_part_two() {
-        assert!(false);
     }
 }
