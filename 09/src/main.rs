@@ -1,5 +1,10 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    ops::Add,
+};
 
+use itertools::Itertools;
+use num::Bounded;
 use regex::Regex;
 
 use common;
@@ -38,53 +43,58 @@ fn get_locations(input: &str) -> HashSet<&str> {
     locations
 }
 
-fn find_closest_destination<'a>(
+fn compute_shortest_path<T>(
     origin: &str,
-    destinations: &HashSet<&'a str>,
-    distances: &HashMap<(&str, &str), u32>,
-) -> &'a str {
-    let mut min_distance = u32::MAX;
-    let mut closest_destination = None;
-    for dest in destinations.iter() {
-        println!("\t{}", *dest);
-        let distance = distances.get(&(origin, *dest)).unwrap();
-        if *distance <= min_distance {
-            closest_destination = Some(*dest);
-            min_distance = *distance;
+    destination: &str,
+    locations: &HashSet<&str>,
+    distances: &HashMap<(&str, &str), T>,
+) -> T
+where
+    T: Bounded + Copy + Add<Output = T>,
+    <T as Add>::Output: PartialOrd<T>,
+{
+    let mut shortest_distances = distances.clone();
+    let mut unvisited = locations.clone();
+    unvisited.remove(origin);
+
+    for current in unvisited.drain() {
+        for neighbor in locations.iter() {
+            if *neighbor == current {
+                continue;
+            }
+            let old = *shortest_distances
+                .get(&(origin, *neighbor))
+                .unwrap_or(&T::max_value());
+            let new = *distances.get(&(origin, current)).unwrap()
+                + *distances.get(&(current, *neighbor)).unwrap();
+            if new < old {
+                shortest_distances.insert((origin, *neighbor), new);
+            }
         }
     }
 
-    closest_destination.unwrap()
-}
-
-fn compute_shortest_paths(
-    locations: HashSet<&str>,
-    distances: &HashMap<(&str, &str), u32>,
-) -> HashMap<(&str, &str), u32> {
-    let mut paths = distances.clone();
-
-    paths
+    *shortest_distances
+        .get(&(origin, destination))
+        .unwrap_or(&T::max_value())
 }
 
 fn part_one(input: &str) -> u32 {
-    let mut shortest_route = 0;
     let distances = get_distances(input);
-    let mut locations = get_locations(input);
-    let mut origin;
-    {
-        let mut drain = locations.drain();
-        origin = drain.next().unwrap();
-        locations = HashSet::from_iter(drain);
-    }
+    let locations = get_locations(input);
+    let mut shortest_route = u32::MAX;
 
-    println!("{origin}");
-    while !locations.is_empty() {
-        let destination = find_closest_destination(origin, &locations, &distances);
-        let key = (origin, destination);
-        shortest_route += distances.get(&key).unwrap();
-        println!("{origin} {destination}");
-        origin = destination;
-        locations.remove(destination);
+    let routes = locations.iter().permutations(locations.len());
+    for route in routes {
+        let mut length = 0;
+        let mut iter = route.into_iter();
+        let mut current = iter.next().unwrap();
+        while let Some(next) = iter.next() {
+            length += compute_shortest_path(*current, *next, &locations, &distances);
+            current = next;
+        }
+        if length < shortest_route {
+            shortest_route = length;
+        }
     }
     shortest_route
 }
@@ -117,6 +127,6 @@ mod tests {
 
     #[test]
     fn test_part_two() {
-        assert_eq!(part_two("2x3x4"), 34);
+        assert_eq!(part_two("2x3x4"), 0);
     }
 }
