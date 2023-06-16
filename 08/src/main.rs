@@ -34,6 +34,23 @@ fn parse_string_code(input: &str) -> String {
     parsed
 }
 
+fn escape_input(input: &str) -> String {
+    let mut chars = input.chars();
+    let mut escaped = String::new();
+
+    escaped.push('"');
+    while let Some(c) = chars.next() {
+        match c {
+            '"' => escaped += r#"\""#,
+            '\\' => escaped += r"\\",
+            _ => escaped.push(c),
+        }
+    }
+    escaped.push('"');
+
+    escaped
+}
+
 fn part_one(input: &str) -> usize {
     let mut size = 0;
     let mut num_characters = 0;
@@ -44,8 +61,14 @@ fn part_one(input: &str) -> usize {
     size - num_characters
 }
 
-fn part_two(_input: &str) -> usize {
-    0
+fn part_two(input: &str) -> usize {
+    let mut num_input = 0;
+    let mut num_escaped = 0;
+    for line in input.lines() {
+        num_input += line.chars().count();
+        num_escaped += escape_input(line).chars().count();
+    }
+    num_escaped - num_input
 }
 
 fn main() {
@@ -64,5 +87,13 @@ mod tests {
         assert_eq!(part_one(r#""abc""#), 2);
         assert_eq!(part_one(r#""aaa\"aaa""#), 3);
         assert_eq!(part_one(r#""\x27""#), 5);
+    }
+
+    #[test]
+    fn test_part_two() {
+        assert_eq!(part_two(r#""""#), 4);
+        assert_eq!(part_two(r#""abc""#), 4);
+        assert_eq!(part_two(r#""aaa\"aaa""#), 6);
+        assert_eq!(part_two(r#""\x27""#), 5);
     }
 }
