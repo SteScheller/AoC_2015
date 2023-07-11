@@ -1,10 +1,6 @@
-use std::{
-    collections::{HashMap, HashSet},
-    ops::Add,
-};
+use std::collections::{HashMap, HashSet};
 
 use itertools::Itertools;
-use num::Bounded;
 use regex::Regex;
 
 use common;
@@ -43,41 +39,6 @@ fn get_locations(input: &str) -> HashSet<&str> {
     locations
 }
 
-fn compute_shortest_path<T>(
-    origin: &str,
-    destination: &str,
-    locations: &HashSet<&str>,
-    distances: &HashMap<(&str, &str), T>,
-) -> T
-where
-    T: Bounded + Copy + Add<Output = T>,
-    <T as Add>::Output: PartialOrd<T>,
-{
-    let mut shortest_distances = distances.clone();
-    let mut unvisited = locations.clone();
-    unvisited.remove(origin);
-
-    for current in unvisited.drain() {
-        for neighbor in locations.iter() {
-            if *neighbor == current {
-                continue;
-            }
-            let old = *shortest_distances
-                .get(&(origin, *neighbor))
-                .unwrap_or(&T::max_value());
-            let new = *distances.get(&(origin, current)).unwrap()
-                + *distances.get(&(current, *neighbor)).unwrap();
-            if new < old {
-                shortest_distances.insert((origin, *neighbor), new);
-            }
-        }
-    }
-
-    *shortest_distances
-        .get(&(origin, destination))
-        .unwrap_or(&T::max_value())
-}
-
 fn part_one(input: &str) -> u32 {
     let distances = get_distances(input);
     let locations = get_locations(input);
@@ -89,7 +50,7 @@ fn part_one(input: &str) -> u32 {
         let mut iter = route.into_iter();
         let mut current = iter.next().unwrap();
         while let Some(next) = iter.next() {
-            length += compute_shortest_path(*current, *next, &locations, &distances);
+            length += distances.get(&(current, next)).unwrap();
             current = next;
         }
         if length < shortest_route {
@@ -99,8 +60,25 @@ fn part_one(input: &str) -> u32 {
     shortest_route
 }
 
-fn part_two(_input: &str) -> u32 {
-    0
+fn part_two(input: &str) -> u32 {
+    let distances = get_distances(input);
+    let locations = get_locations(input);
+    let mut longest_route = 0;
+
+    let routes = locations.iter().permutations(locations.len());
+    for route in routes {
+        let mut length = 0;
+        let mut iter = route.into_iter();
+        let mut current = iter.next().unwrap();
+        while let Some(next) = iter.next() {
+            length += distances.get(&(current, next)).unwrap();
+            current = next;
+        }
+        if length > longest_route {
+            longest_route = length;
+        }
+    }
+    longest_route
 }
 
 fn main() {
@@ -127,6 +105,13 @@ mod tests {
 
     #[test]
     fn test_part_two() {
-        assert_eq!(part_two("2x3x4"), 0);
+        assert_eq!(
+            part_two(
+                "London to Dublin = 464\n\
+            London to Belfast = 518\n\
+            Dublin to Belfast = 141"
+            ),
+            982
+        );
     }
 }
