@@ -1,6 +1,6 @@
 use common;
 
-fn part_one(input: &str, iterations: usize) -> String {
+fn part_one_two(input: &str, iterations: usize) -> String {
     let mut sequence = String::from(input);
 
     for _ in 0..iterations {
@@ -26,14 +26,10 @@ fn part_one(input: &str, iterations: usize) -> String {
     sequence
 }
 
-fn part_two(_input: &str) -> String {
-    String::new()
-}
-
 fn main() {
     let input = common::read_input("input.txt");
-    println!("{}", part_one(&input, 40).len());
-    println!("{}", part_two(&input));
+    println!("{}", part_one_two(&input, 40).len());
+    println!("{}", part_one_two(&input, 50).len());
 }
 
 #[cfg(test)]
@@ -41,16 +37,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_part_one() {
-        assert_eq!(part_one("1", 1), "11");
-        assert_eq!(part_one("1", 2), "21");
-        assert_eq!(part_one("1", 3), "1211");
-        assert_eq!(part_one("1", 4), "111221");
-        assert_eq!(part_one("1", 5), "312211");
-    }
-
-    #[test]
-    fn test_part_two() {
-        assert_eq!(part_two(""), "");
+    fn test_part_one_two() {
+        assert_eq!(part_one_two("1", 1), "11");
+        assert_eq!(part_one_two("1", 2), "21");
+        assert_eq!(part_one_two("1", 3), "1211");
+        assert_eq!(part_one_two("1", 4), "111221");
+        assert_eq!(part_one_two("1", 5), "312211");
     }
 }
