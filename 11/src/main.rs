@@ -5,11 +5,19 @@ fn increment_pw(pw: &mut String) {
     for ic in pw.char_indices() {
         let (i, c) = ic;
         match c {
-            z => idx = Some(i),
-            _ => idx = None,
+            'z' => {}
+            _ => {
+                idx = Some(i);
+                break;
+            }
         }
     }
     if let Some(i) = idx {
+        let c = pw.chars().nth(i).unwrap();
+        pw.replace_range(
+            i..i + 1,
+            &std::char::from_u32(c as u32 + 1).unwrap().to_string(),
+        );
     } else {
         pw.insert(0, 'a');
     }
