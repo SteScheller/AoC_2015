@@ -1,10 +1,37 @@
+use serde_json::Value;
+
 use common;
 
-fn part_one(_input: &str) -> u32 {
-    0
+fn compute_sum(object: Value) -> i32 {
+    let mut sum = 0;
+    match object {
+        Value::Object(obj) => {
+            for (_key, value) in obj {
+                sum += compute_sum(value);
+            }
+        }
+        Value::Array(arr) => {
+            for item in arr {
+                sum += compute_sum(item);
+            }
+        }
+        Value::Number(num) => {
+            if let Some(num) = num.as_i64() {
+                sum += num as i32;
+            }
+        }
+        _ => (),
+    }
+    sum
 }
 
-fn part_two(_input: &str) -> u32 {
+fn part_one(input: &str) -> i32 {
+    let json: Value = serde_json::from_str(input).unwrap();
+
+    compute_sum(json)
+}
+
+fn part_two(_input: &str) -> i32 {
     0
 }
 
