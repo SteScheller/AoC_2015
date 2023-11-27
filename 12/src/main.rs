@@ -55,25 +55,25 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
+    use common::parametrized_tests;
+
     use super::*;
 
-    #[test]
-    fn test_part_one() {
-        assert_eq!(part_one("[1,2,3]"), 6);
-        assert_eq!(part_one("{\"a\": 2, \"b\":4}"), 6);
-        assert_eq!(part_one("[[[3]]]"), 3);
-        assert_eq!(part_one("{\"a\":{\"b\":4},\"c\":-1}"), 3);
-        assert_eq!(part_one("{\"a\":[-1,1]}"), 0);
-        assert_eq!(part_one("[-1,{\"a\":1}]"), 0);
-        assert_eq!(part_one("[]"), 0);
-        assert_eq!(part_one("{}"), 0);
+    parametrized_tests! {
+        part_one_0: (part_one, "[1,2,3]", 6),
+        part_one_1: (part_one, "{\"a\": 2, \"b\":4}", 6),
+        part_one_2: (part_one, "[[[3]]]", 3),
+        part_one_3: (part_one, "{\"a\":{\"b\":4},\"c\":-1}", 3),
+        part_one_4: (part_one, "{\"a\":[-1,1]}", 0),
+        part_one_5: (part_one, "[-1,{\"a\":1}]", 0),
+        part_one_6: (part_one, "[]", 0),
+        part_one_7: (part_one, "{}", 0),
     }
 
-    #[test]
-    fn test_part_two() {
-        assert_eq!(part_two("[1,2,3]"), 6);
-        assert_eq!(part_two("[1,{\"c\":\"red\",\"b\":2},3]"), 4);
-        assert_eq!(part_two("{\"d\":\"red\",\"e\":[1,2,3,4],\"f\":5}"), 0);
-        assert_eq!(part_two("[1,\"red\",5]"), 6);
+    parametrized_tests! {
+        part_two_0: (part_two, "[1,2,3]", 6),
+        part_two_1: (part_two, "[1,{\"c\":\"red\",\"b\":2},3]", 4),
+        part_two_2: (part_two, "{\"d\":\"red\",\"e\":[1,2,3,4],\"f\":5}", 0),
+        part_two_3: (part_two, "[1,\"red\",5]", 6),
     }
 }
