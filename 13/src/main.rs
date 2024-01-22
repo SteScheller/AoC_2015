@@ -37,7 +37,7 @@ fn get_relations(input: &str) -> Vec<Relation> {
                 c.get(1).unwrap().as_str(),
                 c.get(4).unwrap().as_str(),
                 c.get(3).unwrap().as_str().parse::<i8>().unwrap() * sign,
-            ))
+            ));
         }
     }
     relations
