@@ -84,7 +84,24 @@ fn part_one(input: &str) -> i32 {
 
 fn part_two(input: &str) -> i32 {
     let relations = get_relations(input);
-    0
+    let mut persons = get_persons(&relations);
+    persons.push("Myself".to_string());
+    let relation_map = get_relation_map(&relations);
+    let permutations = persons.iter().permutations(persons.len());
+
+    let mut max_happiness = 0;
+    for p in permutations {
+        let mut happiness = 0;
+        for (p1, p2) in p.into_iter().circular_tuple_windows() {
+            if !relation_map.contains_key(&(p1, p2)) {
+                continue;
+            }
+            happiness += *relation_map.get(&(p1, p2)).unwrap() as i32;
+            happiness += *relation_map.get(&(p2, p1)).unwrap() as i32;
+        }
+        max_happiness = std::cmp::max(happiness, max_happiness);
+    }
+    max_happiness
 }
 
 fn main() {
