@@ -73,10 +73,9 @@ fn part_one(input: &str) -> i32 {
     let mut max_happiness = 0;
     for p in permutations {
         let mut happiness = 0;
-        for pair in p.into_iter().tuple_windows() {
-            if let Some(value) = relation_map.get(&pair) {
-                happiness += *value as i32;
-            }
+        for (p1, p2) in p.into_iter().circular_tuple_windows() {
+            happiness += *relation_map.get(&(p1, p2)).unwrap() as i32;
+            happiness += *relation_map.get(&(p2, p1)).unwrap() as i32;
         }
         max_happiness = std::cmp::max(happiness, max_happiness);
     }
