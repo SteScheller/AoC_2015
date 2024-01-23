@@ -1,5 +1,5 @@
 use regex::Regex;
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 
 #[derive(Debug, PartialEq)]
 struct Reindeer {
@@ -7,6 +7,8 @@ struct Reindeer {
     speed: u32,
     t_run: u32,
     t_rest: u32,
+    t: u32,
+    p: u32,
 }
 
 impl Reindeer {
@@ -16,11 +18,28 @@ impl Reindeer {
             speed,
             t_run,
             t_rest,
+            t: 0,
+            p: 0,
         }
     }
 
-    pub fn compute_distance(t_end: u32) -> u32 {
-        0
+    pub fn compute_distance(&self, t_end: u32) -> u32 {
+        let t_period = self.t_run + self.t_rest;
+        let s_period = self.speed * self.t_run;
+        let mut s = s_period * (t_end / t_period);
+        s += core::cmp::min(t_end % t_period, self.t_run) * self.speed;
+        s
+    }
+
+    pub fn advance(&mut self, dt: u32) {
+        for _ in 0..dt {
+            self.t += 1;
+            if self.t <= self.t_run {
+                self.p += self.speed;
+            } else if self.t >= (self.t_run + self.t_rest) {
+                self.t = 0;
+            }
+        }
     }
 }
 
@@ -45,17 +64,38 @@ fn get_reindeers(input: &str) -> Vec<Reindeer> {
 
 fn part_one(input: &str, t_end: u32) -> u32 {
     let reindeers = get_reindeers(input);
-    0
+    reindeers
+        .into_iter()
+        .map(|x| x.compute_distance(t_end))
+        .max()
+        .unwrap()
 }
 
-fn part_two(_input: &str) -> u32 {
-    0
+fn part_two(input: &str, t_end: u32) -> u32 {
+    let mut reindeers = get_reindeers(input);
+    let mut points = HashMap::new();
+    for _ in 0..t_end {
+        for r in reindeers.iter_mut() {
+            r.advance(1);
+        }
+        let leader_index = reindeers
+            .iter()
+            .enumerate()
+            .max_by_key(|&(_, r)| r.p)
+            .map(|(i, _)| i);
+
+        // TODO: all reindeers that share the lead should get a point
+        *points.entry(leader_index).or_insert(0) += 1;
+    }
+
+    let (_, max_points) = points.iter().max_by_key(|&(_, v)| v).unwrap();
+    *max_points
 }
 
 fn main() {
     let input = common::read_input("input.txt");
     println!("{}", part_one(&input, 2503));
-    println!("{}", part_two(&input));
+    println!("{}", part_two(&input, 2503));
 }
 
 #[cfg(test)]
@@ -73,6 +113,11 @@ mod tests {
     #[test]
     fn test_part_one() {
         assert_eq!(part_one(TEST_DATA, 1000), 1120);
+    }
+
+    #[test]
+    fn test_part_two() {
+        assert_eq!(part_two(TEST_DATA, 1000), 689);
     }
 
     parametrized_tests! {
