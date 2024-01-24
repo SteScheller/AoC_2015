@@ -1,7 +1,5 @@
 use serde_json::Value;
 
-use common;
-
 fn compute_sum(object: Value, exclude_property: Option<&str>) -> i32 {
     let mut sum = 0;
     match object {

@@ -1,6 +1,3 @@
-use common;
-use md5;
-
 fn find_prefix_collision(input: &str, prefix: &str) -> u32 {
     let mut result = 0;
     let mut condition = true;

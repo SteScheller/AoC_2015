@@ -1,4 +1,3 @@
-use common;
 use regex::{Captures, Regex};
 use std::collections::HashMap;
 
@@ -120,7 +119,7 @@ fn get_instructions(input: &str) -> Option<Vec<Instruction>> {
                 _ => panic!("failed to parse shift instruction"),
             };
             inst = Some(Instruction {
-                op: op,
+                op,
                 arg1: capture_to_arg(&c, 1),
                 arg2: None,
                 out: capture_to_wire(&c, 4).unwrap(),
@@ -132,7 +131,7 @@ fn get_instructions(input: &str) -> Option<Vec<Instruction>> {
                 _ => panic!("failed to parse instruction"),
             };
             inst = Some(Instruction {
-                op: op,
+                op,
                 arg1: capture_to_arg(&c, 1),
                 arg2: Some(capture_to_arg(&c, 3)),
                 out: capture_to_wire(&c, 4).unwrap(),
@@ -165,7 +164,7 @@ fn solve(instructions: &Vec<Instruction>) -> HashMap<String, u16> {
                 if let &Argument::WireVariant(w) = &arg1 {
                     if results.contains_key(&w.0) {
                         temp_constant =
-                            Argument::ConstantVariant(Constant(results.get(&w.0).unwrap().clone()));
+                            Argument::ConstantVariant(Constant(*results.get(&w.0).unwrap()));
                         arg1 = &temp_constant;
                     }
                 };
@@ -174,7 +173,7 @@ fn solve(instructions: &Vec<Instruction>) -> HashMap<String, u16> {
                 if let &Some(Argument::WireVariant(w)) = &arg2 {
                     if results.contains_key(&w.0) {
                         temp_option = Some(Argument::ConstantVariant(Constant(
-                            results.get(&w.0).unwrap().clone(),
+                            *results.get(&w.0).unwrap(),
                         )));
                         arg2 = &temp_option;
                     }
@@ -194,7 +193,7 @@ fn part_one(input: &str) -> HashMap<String, u16> {
 }
 
 fn part_two(input: &str) -> HashMap<String, u16> {
-    let signal_a = part_one(input).get("a").unwrap().clone();
+    let signal_a = *part_one(input).get("a").unwrap();
     let mut instructions = get_instructions(input).unwrap();
     let modified_b = Instruction {
         op: Operation::Assignment,

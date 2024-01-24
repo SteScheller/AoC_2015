@@ -1,5 +1,3 @@
-use common;
-
 fn part_one(input: &str) -> i32 {
     let mut result = 0;
     for c in input.chars() {

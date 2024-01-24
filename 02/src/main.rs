@@ -1,5 +1,3 @@
-use common;
-
 fn part_one(input: &str) -> u32 {
     let mut result = 0;
 
@@ -30,7 +28,7 @@ fn part_two(input: &str) -> u32 {
             dimensions.sort();
             let [a, b, _] = dimensions;
             result += 2 * (a + b);
-            result += dimensions.iter().fold(1, |acc, x| acc * x);
+            result += dimensions.iter().product::<u32>();
         }
     }
 

@@ -1,8 +1,6 @@
 use std::collections::HashSet;
 use std::str::FromStr;
 
-use common;
-
 fn increment_pw(pw: &mut String) {
     let mut completed_increment = false;
     let old_pw = pw.clone();
@@ -41,7 +39,7 @@ fn contains_forbidden_letters(pw: &str) -> bool {
 
 fn contains_increasing_straight(pw: &str) -> bool {
     let mut found_straight = false;
-    let mut last_codepoint = pw.chars().nth(0).unwrap() as u32;
+    let mut last_codepoint = pw.chars().next().unwrap() as u32;
     let mut len_straight = 1;
 
     for c in pw.chars().skip(1) {

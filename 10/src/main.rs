@@ -1,12 +1,10 @@
-use common;
-
 fn part_one_two(input: &str, iterations: usize) -> String {
     let mut sequence = String::from(input);
 
     for _ in 0..iterations {
         let input = sequence;
         let mut count = 1;
-        let mut current = input.chars().nth(0).unwrap_or('\0');
+        let mut current = input.chars().next().unwrap_or('\0');
 
         sequence = String::new();
         for c in input.chars().skip(1) {

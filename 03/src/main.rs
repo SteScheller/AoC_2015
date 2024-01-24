@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 
-use common;
-
 fn part_one(input: &str) -> usize {
     let (mut x, mut y) = (0, 0);
     let mut visits = HashMap::new();
@@ -29,11 +27,10 @@ fn part_two(input: &str) -> usize {
     visits.insert([xs[0], ys[0]], 1);
 
     for (i, c) in input.char_indices().step_by(2) {
-        let directions;
-        match input.get(i + 1..=i + 1) {
-            Some(next_c) => directions = [c, next_c.chars().next().unwrap()],
+        let directions = match input.get(i + 1..=i + 1) {
+            Some(next_c) => [c, next_c.chars().next().unwrap()],
             _ => continue,
-        }
+        };
         for i in 0..2 {
             match directions[i] {
                 '<' => xs[i] -= 1,

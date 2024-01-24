@@ -3,8 +3,6 @@ use std::collections::{HashMap, HashSet};
 use itertools::Itertools;
 use regex::Regex;
 
-use common;
-
 fn get_distances(input: &str) -> HashMap<(&str, &str), u32> {
     let re_location_distances = Regex::new(r"(\w+) to (\w+) = (\d+)").unwrap();
     let mut distances = HashMap::new();
@@ -49,7 +47,7 @@ fn part_one(input: &str) -> u32 {
         let mut length = 0;
         let mut iter = route.into_iter();
         let mut current = iter.next().unwrap();
-        while let Some(next) = iter.next() {
+        for next in iter {
             length += distances.get(&(current, next)).unwrap();
             current = next;
         }
@@ -70,7 +68,7 @@ fn part_two(input: &str) -> u32 {
         let mut length = 0;
         let mut iter = route.into_iter();
         let mut current = iter.next().unwrap();
-        while let Some(next) = iter.next() {
+        for next in iter {
             length += distances.get(&(current, next)).unwrap();
             current = next;
         }

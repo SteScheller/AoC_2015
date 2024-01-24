@@ -1,4 +1,3 @@
-use common;
 use regex::{Captures, Regex};
 
 struct LightGrid {
@@ -74,7 +73,7 @@ impl LightGrid {
                 for x in x1..x2 + 1 {
                     for y in y1..y2 + 1 {
                         if self.arr[x][y] > 0 {
-                            self.arr[x][y] = self.arr[x][y] - 1;
+                            self.arr[x][y] -= 1;
                         }
                     }
                 }

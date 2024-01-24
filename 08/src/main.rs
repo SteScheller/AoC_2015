@@ -1,7 +1,5 @@
 use regex::Regex;
 
-use common;
-
 fn parse_string_code(input: &str) -> String {
     let re_content = Regex::new(r#"^\"(.*)\"$"#).unwrap();
     let content = match re_content.captures(input) {
@@ -35,11 +33,11 @@ fn parse_string_code(input: &str) -> String {
 }
 
 fn escape_input(input: &str) -> String {
-    let mut chars = input.chars();
+    let chars = input.chars();
     let mut escaped = String::new();
 
     escaped.push('"');
-    while let Some(c) = chars.next() {
+    for c in chars {
         match c {
             '"' => escaped += r#"\""#,
             '\\' => escaped += r"\\",

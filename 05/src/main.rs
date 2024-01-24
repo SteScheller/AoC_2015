@@ -1,4 +1,3 @@
-use common;
 use fancy_regex::Regex;
 
 fn part_one(input: &str) -> u32 {
