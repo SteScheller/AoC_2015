@@ -78,14 +78,18 @@ fn part_two(input: &str, t_end: u32) -> u32 {
         for r in reindeers.iter_mut() {
             r.advance(1);
         }
-        let leader_index = reindeers
-            .iter()
-            .enumerate()
-            .max_by_key(|&(_, r)| r.p)
-            .map(|(i, _)| i);
 
+        let max_p = reindeers
+            .iter()
+            .max_by_key(|&r| r.p)
+            .unwrap().p;
+
+        for (i, r) in reindeers.iter().enumerate() {
+            if r.p == max_p {
+                *points.entry(i).or_insert(0) += 1;
+            }
+        }
         // TODO: all reindeers that share the lead should get a point
-        *points.entry(leader_index).or_insert(0) += 1;
     }
 
     let (_, max_points) = points.iter().max_by_key(|&(_, v)| v).unwrap();
