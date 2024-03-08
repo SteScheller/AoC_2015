@@ -60,7 +60,7 @@ fn calc_score(recipe: &Recipe) -> u32 {
     let mut flavor = 0;
     let mut texture = 0;
 
-    for (ingredient, n) in recipe{
+    for (ingredient, n) in recipe {
         capacity += *n as i32 * ingredient.capacity;
         durability += *n as i32 * ingredient.durability;
         flavor += *n as i32 * ingredient.flavor;
@@ -69,6 +69,20 @@ fn calc_score(recipe: &Recipe) -> u32 {
 
     let score = capacity * durability * flavor * texture;
     std::cmp::max(score, 0) as u32
+}
+
+fn get_partitions(n: u32, k: u32) -> Vec<u32> {
+    let mut partitions = Vec::new();
+
+    if k == 0 {
+        return partitions;
+    }
+
+    if k == 1 {
+        return vec![n];
+    }
+
+    partitions
 }
 
 fn part_one(input: &str, _sum_spoons: u32) -> u32 {
@@ -91,7 +105,8 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use common::parametrized_tests;
+    use common::{parametrized_tests, parametrized_tests_single};
+    use paste::paste;
     use indoc::indoc;
 
     use super::*;
@@ -121,13 +136,21 @@ mod tests {
     }
 
     parametrized_tests! {
-        ingredient_0: (
+        get_ingredients_butterscotch: (
             get_ingredients,
             "Butterscotch: capacity -1, durability -2, flavor 6, texture 3, calories 8",
             vec![Ingredient::new("Butterscotch", -1, -2, 6, 3, 8)]),
-        ingredient_1: (
+       get_ingredients_cinnamon: (
             get_ingredients,
             "Cinnamon: capacity 2, durability 3, flavor -2, texture -1, calories 3",
             vec![Ingredient::new("Cinnamon", 2, 3, -2, -1, 3)]),
+    }
+
+    parametrized_tests_single! {
+        get_partitions: get_partitions,
+        (
+            _0: (42, 0), vec![]
+            _1: (43, 1), vec![42]
+        )
     }
 }

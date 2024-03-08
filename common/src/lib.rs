@@ -17,6 +17,21 @@ macro_rules! parametrized_tests {
     }
 }
 
+// requires "use paste::paste" at destination crate
+#[macro_export]
+macro_rules! parametrized_tests_single {
+    ($name:ident: $func:expr, ($($suffix:ident: $args:expr, $expected:expr)*)) => {
+    $(
+        paste! {
+            #[test]
+            fn [< $name _ $suffix >]() {
+                assert_eq!($func[< $args >], $expected);
+            }
+        }
+    )*
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -9,3 +9,5 @@ edition = "2021"
 common = { path = "../common" }
 indoc = "2.0.4"
 regex = "1.10.3"
+paste = "1.0"
+
