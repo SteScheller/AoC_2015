@@ -106,8 +106,8 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use common::{parametrized_tests, parametrized_tests_single};
-    use paste::paste;
     use indoc::indoc;
+    use paste::paste;
 
     use super::*;
 
@@ -136,18 +136,18 @@ mod tests {
     }
 
     parametrized_tests! {
-        get_ingredients_butterscotch: (
+        test_get_ingredients_butterscotch: (
             get_ingredients,
             "Butterscotch: capacity -1, durability -2, flavor 6, texture 3, calories 8",
             vec![Ingredient::new("Butterscotch", -1, -2, 6, 3, 8)]),
-       get_ingredients_cinnamon: (
+       test_get_ingredients_cinnamon: (
             get_ingredients,
             "Cinnamon: capacity 2, durability 3, flavor -2, texture -1, calories 3",
             vec![Ingredient::new("Cinnamon", 2, 3, -2, -1, 3)]),
     }
 
     parametrized_tests_single! {
-        get_partitions: get_partitions,
+        get_partitions,
         (
             _0: (42, 0), vec![]
             _1: (43, 1), vec![42]
