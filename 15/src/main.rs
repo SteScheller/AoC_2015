@@ -107,7 +107,6 @@ fn main() {
 mod tests {
     use common::{parametrized_tests, parametrized_tests_single};
     use indoc::indoc;
-    use paste::paste;
 
     use super::*;
 
@@ -150,7 +149,7 @@ mod tests {
         get_partitions,
         (
             _0: (42, 0), vec![]
-            _1: (43, 1), vec![42]
+            _1: (42, 1), vec![42]
         )
     }
 }

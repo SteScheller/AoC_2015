@@ -1,3 +1,4 @@
+pub use paste::paste;
 use std::fs;
 
 pub fn read_input(file_path: &str) -> String {
@@ -17,16 +18,21 @@ macro_rules! parametrized_tests {
     }
 }
 
-// requires "use paste::paste" at destination crate
+#[macro_export]
+macro_rules! call {
+    ($func:ident, ($($arg:expr),*)) => {
+        $func($($arg,)*)
+    }
+}
+
 #[macro_export]
 macro_rules! parametrized_tests_single {
-    ($func:ident, ($($suffix:ident: $args:expr, $expected:expr)*)) => {
+    ($func:ident, ($($suffix:ident: $args:tt, $expected:expr)*)) => {
     $(
-        paste! {
+        $crate::paste! {
             #[test]
             fn [<test_$func$suffix>]() {
-                //assert_eq!([<$func$args>], $expected);
-                println!("{:?}", $args);
+                assert_eq!($crate::call!($func, $args), $expected);
             }
         }
     )*
