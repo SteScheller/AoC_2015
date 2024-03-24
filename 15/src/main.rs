@@ -90,7 +90,7 @@ fn part_one(input: &str, sum_spoons: u32) -> u32 {
     let mut max_score = 0;
 
     for (i, j, k, l) in iproduct!(r.clone(), r.clone(), r.clone(), r) {
-        if (i + j + k + l) > sum_spoons {
+        if (i + j + k + l) != sum_spoons {
             continue;
         }
         let mut recipe = HashMap::new();
@@ -103,8 +103,31 @@ fn part_one(input: &str, sum_spoons: u32) -> u32 {
     max_score
 }
 
-fn part_two(_input: &str, _sum_spoons: u32) -> u32 {
-    0
+fn part_two(input: &str, sum_spoons: u32) -> u32 {
+    let ingredients = get_ingredients(input);
+    let r = 0..=sum_spoons;
+    let mut max_score = 0;
+
+    for (i, j, k, l) in iproduct!(r.clone(), r.clone(), r.clone(), r) {
+        if (i + j + k + l) != sum_spoons {
+            continue;
+        }
+        let mut recipe = HashMap::new();
+        recipe.insert(&ingredients[0], i);
+        recipe.insert(&ingredients[1], j);
+        recipe.insert(&ingredients[2], k);
+        recipe.insert(&ingredients[3], l);
+
+        let score = calc_score(&recipe);
+        let calories = recipe
+            .into_iter()
+            .map(|x| x.0.calories as u32 * x.1)
+            .fold(0, std::ops::Add::add);
+        if calories == 500 {
+            max_score = std::cmp::max(score, max_score);
+        }
+    }
+    max_score
 }
 
 fn main() {
