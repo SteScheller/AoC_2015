@@ -1,3 +1,4 @@
+use itertools::iproduct;
 use regex::Regex;
 use std::{collections::HashMap, hash::Hash, str::FromStr};
 
@@ -67,30 +68,39 @@ fn calc_score(recipe: &Recipe) -> u32 {
         texture += *n as i32 * ingredient.texture;
     }
 
-    let score = capacity * durability * flavor * texture;
-    std::cmp::max(score, 0) as u32
+    let score = [capacity, durability, flavor, texture]
+        .into_iter()
+        .map(|x| std::cmp::max(x, 1))
+        .fold(1, std::ops::Mul::mul);
+    score as u32
 }
 
-fn get_partitions(n: u32, k: u32) -> Vec<u32> {
+fn get_partitions(n: u32, k: u32) -> Vec<std::ops::RangeInclusive<u32>> {
     let mut partitions = Vec::new();
 
-    if k == 0 {
-        return partitions;
+    for _ in 0..k {
+        partitions.push(0..=n)
     }
-
-    if k == 1 {
-        return vec![n];
-    }
-
     partitions
 }
 
-fn part_one(input: &str, _sum_spoons: u32) -> u32 {
+fn part_one(input: &str, sum_spoons: u32) -> u32 {
     let ingredients = get_ingredients(input);
-    let mut recipe = HashMap::new();
-    recipe.insert(&ingredients[0], 1); // butterscotch
-    recipe.insert(&ingredients[1], 1); // cinnamon
-    calc_score(&recipe)
+    let r = 0..=sum_spoons;
+    let mut max_score = 0;
+
+    for (i, j, k, l) in iproduct!(r.clone(), r.clone(), r.clone(), r) {
+        if (i + j + k + l) > sum_spoons {
+            continue;
+        }
+        let mut recipe = HashMap::new();
+        recipe.insert(&ingredients[0], i);
+        recipe.insert(&ingredients[1], j);
+        recipe.insert(&ingredients[2], k);
+        recipe.insert(&ingredients[3], l);
+        max_score = std::cmp::max(calc_score(&recipe), max_score);
+    }
+    max_score
 }
 
 fn part_two(_input: &str, _sum_spoons: u32) -> u32 {
@@ -148,8 +158,10 @@ mod tests {
     parametrized_tests_single! {
         get_partitions,
         (
-            _0: (42, 0), vec![]
-            _1: (42, 1), vec![42]
+            _0: (42, 0), Vec::<std::ops::RangeInclusive<u32>>::new()
+            _1: (3, 1), Vec::from([0..=3])
+            _2: (3, 2), Vec::from([0..=3, 0..=3])
+            _3: (3, 3), Vec::from([0..=3, 0..=3, 0..=3])
         )
     }
 }
