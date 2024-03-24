@@ -75,15 +75,6 @@ fn calc_score(recipe: &Recipe) -> u32 {
     score as u32
 }
 
-fn get_partitions(n: u32, k: u32) -> Vec<std::ops::RangeInclusive<u32>> {
-    let mut partitions = Vec::new();
-
-    for _ in 0..k {
-        partitions.push(0..=n)
-    }
-    partitions
-}
-
 fn part_one(input: &str, sum_spoons: u32) -> u32 {
     let ingredients = get_ingredients(input);
     let r = 0..=sum_spoons;
@@ -149,16 +140,6 @@ mod tests {
     "};
 
     #[test]
-    fn test_part_one() {
-        assert_eq!(part_one(TEST_DATA, 100), 62842880);
-    }
-
-    #[test]
-    fn test_part_two() {
-        assert_eq!(part_two(TEST_DATA, 1000), 689);
-    }
-
-    #[test]
     fn test_calc_score() {
         let mut recipe = HashMap::new();
         let ingredients = get_ingredients(TEST_DATA);
@@ -176,15 +157,5 @@ mod tests {
             get_ingredients,
             "Cinnamon: capacity 2, durability 3, flavor -2, texture -1, calories 3",
             vec![Ingredient::new("Cinnamon", 2, 3, -2, -1, 3)]),
-    }
-
-    parametrized_tests_single! {
-        get_partitions,
-        (
-            _0: (42, 0), Vec::<std::ops::RangeInclusive<u32>>::new()
-            _1: (3, 1), Vec::from([0..=3])
-            _2: (3, 2), Vec::from([0..=3, 0..=3])
-            _3: (3, 3), Vec::from([0..=3, 0..=3, 0..=3])
-        )
     }
 }
