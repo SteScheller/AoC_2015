@@ -1,4 +1,3 @@
-use itertools::iproduct;
 use regex::Regex;
 use std::{collections::HashMap, hash::Hash, str::FromStr};
 
@@ -55,6 +54,27 @@ fn get_ingredients(input: &str) -> Vec<Ingredient> {
     ingredients
 }
 
+fn get_partitions(n: u32, k: u32) -> Vec<Vec<u32>> {
+    let mut partitions = Vec::new();
+
+    match k {
+        0 => (),
+        1 => partitions.push(vec![n]),
+        _ => {
+            for x in 0..=n {
+                let sub_partitions = get_partitions(n - x, k - 1);
+                for sp in sub_partitions {
+                    let mut p = vec![x];
+                    p.extend(sp);
+                    partitions.push(p);
+                }
+            }
+        }
+    }
+
+    partitions
+}
+
 fn calc_score(recipe: &Recipe) -> u32 {
     let mut capacity = 0;
     let mut durability = 0;
@@ -77,18 +97,15 @@ fn calc_score(recipe: &Recipe) -> u32 {
 
 fn part_one(input: &str, sum_spoons: u32) -> u32 {
     let ingredients = get_ingredients(input);
-    let r = 0..=sum_spoons;
+    let num_ingredients = ingredients.len() as u32;
+    let partitions = get_partitions(sum_spoons, num_ingredients);
     let mut max_score = 0;
 
-    for (i, j, k, l) in iproduct!(r.clone(), r.clone(), r.clone(), r) {
-        if (i + j + k + l) != sum_spoons {
-            continue;
-        }
+    for p in partitions.into_iter() {
         let mut recipe = HashMap::new();
-        recipe.insert(&ingredients[0], i);
-        recipe.insert(&ingredients[1], j);
-        recipe.insert(&ingredients[2], k);
-        recipe.insert(&ingredients[3], l);
+        for (i, n_ingredient) in p.into_iter().enumerate() {
+            recipe.insert(&ingredients[i], n_ingredient);
+        }
         max_score = std::cmp::max(calc_score(&recipe), max_score);
     }
     max_score
@@ -96,19 +113,15 @@ fn part_one(input: &str, sum_spoons: u32) -> u32 {
 
 fn part_two(input: &str, sum_spoons: u32) -> u32 {
     let ingredients = get_ingredients(input);
-    let r = 0..=sum_spoons;
+    let num_ingredients = ingredients.len() as u32;
+    let partitions = get_partitions(sum_spoons, num_ingredients);
     let mut max_score = 0;
 
-    for (i, j, k, l) in iproduct!(r.clone(), r.clone(), r.clone(), r) {
-        if (i + j + k + l) != sum_spoons {
-            continue;
-        }
+    for p in partitions.into_iter() {
         let mut recipe = HashMap::new();
-        recipe.insert(&ingredients[0], i);
-        recipe.insert(&ingredients[1], j);
-        recipe.insert(&ingredients[2], k);
-        recipe.insert(&ingredients[3], l);
-
+        for (i, n_ingredient) in p.into_iter().enumerate() {
+            recipe.insert(&ingredients[i], n_ingredient);
+        }
         let score = calc_score(&recipe);
         let calories = recipe
             .into_iter()
@@ -157,5 +170,30 @@ mod tests {
             get_ingredients,
             "Cinnamon: capacity 2, durability 3, flavor -2, texture -1, calories 3",
             vec![Ingredient::new("Cinnamon", 2, 3, -2, -1, 3)]),
+    }
+
+    parametrized_tests_single! {
+        get_partitions,
+        (
+            _0: (42, 0), Vec::<Vec<u32>>::new()
+            _1: (3, 1), vec![vec![3]]
+            _2: (3, 2), vec![vec![0, 3], vec![1,2], vec![2,1], vec![3, 0]]
+            _3: (3, 3), vec![
+                vec![0, 0, 3], vec![0, 1, 2], vec![0, 2, 1], vec![0, 3, 0],
+                vec![1, 0, 2], vec![1, 1, 1], vec![1, 2, 0],
+                vec![2, 0, 1], vec![2, 1, 0],
+                vec![3, 0, 0],
+                ]
+        )
+    }
+
+    #[test]
+    fn test_part_one() {
+        assert_eq!(part_one(TEST_DATA, 100), 62842880);
+    }
+
+    #[test]
+    fn test_part_two() {
+        assert_eq!(part_two(TEST_DATA, 100), 57600000);
     }
 }
